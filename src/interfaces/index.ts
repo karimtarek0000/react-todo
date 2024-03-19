@@ -18,3 +18,7 @@ export interface ILoginForm {
   type: "email" | "password";
   placeholder: string;
 }
+
+export interface IError {
+  error: { message: string };
+}

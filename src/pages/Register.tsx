@@ -1,13 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Input from "../components/ui/Input";
 import { registerInput } from "../data/form";
-import { IFormInputRegister } from "../interfaces";
+import { IError, IFormInputRegister } from "../interfaces";
+import { regsiter } from "../services";
 import { validationRegisterSchema } from "../validations/form";
 
 const RegisterPage = () => {
+  // ----------------- STATE -----------------
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ----------------- HANDLER -----------------
   const {
     register,
     handleSubmit,
@@ -16,8 +23,18 @@ const RegisterPage = () => {
     resolver: yupResolver(validationRegisterSchema),
     mode: "onChange",
   });
-  const onSubmit: SubmitHandler<IFormInputRegister> = (data) =>
-    console.log(data);
+  const onSubmit: SubmitHandler<IFormInputRegister> = async (data) => {
+    try {
+      setIsLoading(true);
+      const res = await regsiter(data);
+      console.log(res);
+    } catch (error) {
+      const errorObj = error as AxiosError<IError>;
+      console.log(errorObj.response?.data.error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ----------------- RENDER -----------------
   const renderInputs = registerInput.map(({ name, type, placeholder }, i) => {
@@ -39,7 +56,9 @@ const RegisterPage = () => {
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {renderInputs}
 
-        <Button fullWidth>Register</Button>
+        <Button isLoading={isLoading} fullWidth>
+          Register
+        </Button>
       </form>
     </div>
   );
