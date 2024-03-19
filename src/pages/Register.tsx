@@ -2,6 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Button from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Input from "../components/ui/Input";
@@ -30,7 +31,7 @@ const RegisterPage = () => {
       console.log(res);
     } catch (error) {
       const errorObj = error as AxiosError<IError>;
-      console.log(errorObj.response?.data.error.message);
+      toast.error(errorObj.response?.data.error.message as string);
     } finally {
       setIsLoading(false);
     }
