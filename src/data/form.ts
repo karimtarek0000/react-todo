@@ -25,7 +25,7 @@ export const registerInput: IRegisterForm[] = [
 
 export const loginInput: ILoginForm[] = [
   {
-    name: "email",
+    name: "identifier",
     type: "email",
     placeholder: "Enter your email",
   },

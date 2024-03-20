@@ -1,11 +1,13 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Input from "../components/ui/Input";
+import { Auth } from "../context";
 import { registerInput } from "../data/form";
 import { IError, IFormInputRegister } from "../interfaces";
 import { regsiter } from "../services";
@@ -14,11 +16,14 @@ import { validationRegisterSchema } from "../validations/form";
 const RegisterPage = () => {
   // ----------------- STATE -----------------
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useContext(Auth);
+  const navigate = useNavigate();
 
   // ----------------- HANDLER -----------------
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<IFormInputRegister>({
     resolver: yupResolver(validationRegisterSchema),
@@ -27,8 +32,14 @@ const RegisterPage = () => {
   const onSubmit: SubmitHandler<IFormInputRegister> = async (data) => {
     try {
       setIsLoading(true);
-      const res = await regsiter(data);
-      console.log(res);
+      const { data: userData }: any = await regsiter(data);
+      auth.setUserData(userData);
+      reset();
+      toast.success(
+        "Signup successfully will redirect to home page after 2 seconds"
+      );
+
+      setTimeout(() => location.replace("/"), 2000);
     } catch (error) {
       const errorObj = error as AxiosError<IError>;
       toast.error(errorObj.response?.data.error.message as string);

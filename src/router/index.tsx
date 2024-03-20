@@ -1,14 +1,17 @@
-import { Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from "react-router-dom";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
-import PageNotFound from "../pages/PageNotFound";
-import RootLayout from "../pages/Layout";
 import ErrorHandler from "../components/errors/ErrorHandler";
 import HomePage from "../pages";
+import RootLayout from "../pages/Layout";
 import LoginPage from "../pages/Login";
+import PageNotFound from "../pages/PageNotFound";
 import RegisterPage from "../pages/Register";
 
-const isLoggedIn = false;
-const userData: { email: string } | null = isLoggedIn ? { email: "email@gmail.com" } : null;
+const isLoggedIn = !!localStorage.getItem("token");
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -18,7 +21,7 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/login" data={userData}>
+            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/login">
               <HomePage />
             </ProtectedRoute>
           }
@@ -26,7 +29,7 @@ const router = createBrowserRouter(
         <Route
           path="login"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/" data={userData}>
+            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/">
               <LoginPage />
             </ProtectedRoute>
           }
@@ -34,7 +37,7 @@ const router = createBrowserRouter(
         <Route
           path="register"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/login" data={userData}>
+            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/login">
               <RegisterPage />
             </ProtectedRoute>
           }

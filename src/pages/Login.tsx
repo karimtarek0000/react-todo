@@ -1,22 +1,52 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { useContext, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Input from "../components/ui/Input";
+import { Auth } from "../context";
 import { loginInput } from "../data/form";
-import { IFormInputLogin } from "../interfaces";
+import { IError, IFormInputLogin } from "../interfaces";
+import { login } from "../services";
 import { validationLoginSchema } from "../validations/form";
 
 const LoginPage = () => {
+  // ----------------- STATE -----------------
+  const [isLoading, setIsLoading] = useState(false);
+  const auth = useContext(Auth);
+  const navigate = useNavigate();
+
+  // ----------------- HANDLER -----------------
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<IFormInputLogin>({
     resolver: yupResolver(validationLoginSchema),
     mode: "onChange",
   });
-  const onSubmit: SubmitHandler<IFormInputLogin> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<IFormInputLogin> = async (data) => {
+    try {
+      setIsLoading(true);
+      const { data: userData }: any = await login(data);
+      auth.setUserData(userData);
+      reset();
+      toast.success(
+        "Signup successfully will redirect to home page after 2 seconds"
+      );
+
+      setTimeout(() => location.replace("/"), 2000);
+    } catch (error) {
+      const errorObj = error as AxiosError<IError>;
+      toast.error(errorObj.response?.data.error.message as string);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ----------------- RENDER -----------------
   const renderInputs = loginInput.map(({ name, type, placeholder }, i) => {
@@ -36,7 +66,9 @@ const LoginPage = () => {
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {renderInputs}
 
-        <Button fullWidth>Login</Button>
+        <Button isLoading={isLoading} fullWidth>
+          Login
+        </Button>
       </form>
     </div>
   );
