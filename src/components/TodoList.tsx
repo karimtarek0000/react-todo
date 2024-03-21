@@ -1,11 +1,11 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { IError, ITodo, ITodoForm } from "../interfaces";
-import { getTodoList } from "../services";
+import { getTodoList, updateTodo } from "../services";
 import { validationTodoSchema } from "../validations/form";
 import Button from "./ui/Button";
 import ErrorMessage from "./ui/ErrorMessage";
@@ -19,8 +19,12 @@ const TodoList = () => {
   const [todoForEdit, setTodoForEdit] = useState<ITodo>({} as ITodo);
 
   // ----------------- QUIRES -----------------
-  const { data, isLoading } = useQuery({
-    queryKey: ["todos"],
+  const {
+    data,
+    isLoading,
+    refetch: fetchTodoList,
+  } = useQuery({
+    queryKey: ["todoList"],
     queryFn: getTodoList,
   });
 
@@ -35,6 +39,21 @@ const TodoList = () => {
     setTodoForEdit(todo);
   };
 
+  // ----------------- MUTATIONS -----------------
+  const { mutate } = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ITodoForm }) =>
+      updateTodo(id, data),
+    onSuccess() {
+      toast.success("Update a todo successfully");
+      fetchTodoList();
+      closeEditModal();
+    },
+    onError(error) {
+      const errorObj = error as AxiosError<IError>;
+      toast.error(errorObj.response?.data.error.message as string);
+    },
+  });
+
   // ----------------- VALIDATION'S -----------------
   const {
     register,
@@ -46,14 +65,8 @@ const TodoList = () => {
     resolver: yupResolver(validationTodoSchema),
     mode: "onChange",
   });
-  const onSubmit: SubmitHandler<ITodoForm> = async (todo: ITodoForm) => {
-    try {
-      toast.success("");
-    } catch (error) {
-      const errorObj = error as AxiosError<IError>;
-      toast.error(errorObj.response?.data.error.message as string);
-    }
-  };
+  const onSubmit: SubmitHandler<ITodoForm> = (todo: ITodoForm) =>
+    mutate({ id: todoForEdit.id, data: todo });
 
   // To set new data when pick a TODO
   useEffect(() => {
