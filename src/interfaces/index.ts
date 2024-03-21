@@ -48,3 +48,7 @@ export interface IAuthContext {
 export interface ITodo {
   title: string;
 }
+
+export interface ITodo {
+  title: string;
+}
