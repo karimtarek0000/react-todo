@@ -1,5 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+// ----------- FORM ----------------
 export interface IFormInputLogin {
   identifier: string;
   password: string;
@@ -23,6 +24,11 @@ export interface ILoginForm {
   placeholder: string;
 }
 
+export interface ITodoForm {
+  title: string;
+  description: string;
+}
+// ---------------
 export interface IError {
   error: { message: string };
 }
@@ -50,5 +56,7 @@ export interface ITodo {
 }
 
 export interface ITodo {
+  id: number;
   title: string;
+  description: string;
 }

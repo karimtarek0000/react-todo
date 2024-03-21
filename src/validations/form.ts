@@ -1,11 +1,11 @@
 import * as Yup from "yup";
-import { IFormInputLogin, IFormInputRegister } from "../interfaces";
+import { IFormInputLogin, IFormInputRegister, ITodoForm } from "../interfaces";
 
 export const validationRegisterSchema: Yup.ObjectSchema<IFormInputRegister> =
   Yup.object().shape({
     username: Yup.string()
       .required("Username is required")
-      .min(5, "a least 5 letter"),
+      .min(5, "a least 5 characters"),
     email: Yup.string()
       .required("Email is required")
       .matches(
@@ -28,4 +28,14 @@ export const validationLoginSchema: Yup.ObjectSchema<IFormInputLogin> =
   Yup.object().shape({
     identifier: Yup.string().required("Username is required"),
     password: Yup.string().required("Passowrd is required"),
+  });
+
+export const validationTodoSchema: Yup.ObjectSchema<ITodoForm> =
+  Yup.object().shape({
+    title: Yup.string()
+      .required("Title is required")
+      .min(5, "a least 5 characters"),
+    description: Yup.string()
+      .required("Passowrd is required")
+      .min(10, "a least 10 characters"),
   });
