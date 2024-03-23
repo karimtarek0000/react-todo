@@ -1,9 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useAddTodo, useDeleteTodo, useEditTodo } from "../hooks/mutations";
+import { useFetchTodo } from "../hooks/quires";
 import { ITodo, ITodoForm } from "../interfaces";
-import { useAddTodo, useDeleteTodo, useEditTodo } from "../server/mutations";
-import { useFetchTodo } from "../server/quires";
 import { validationTodoSchema } from "../validations/form";
 import Button from "./ui/Button";
 import ErrorMessage from "./ui/ErrorMessage";
@@ -23,6 +23,7 @@ const TodoList = () => {
   const {
     data,
     isLoading: loadingTodoList,
+    isError: errorTodoList,
     refetch: fetchTodoList,
   } = useFetchTodo();
 
@@ -132,7 +133,19 @@ const TodoList = () => {
         add new<span className="font-bold">TODO</span>
       </Button>
 
-      {renderTodosList}
+      {renderTodosList.length ? (
+        renderTodosList
+      ) : (
+        <h2 className="text-3xl font-bold text-center text-red-500">
+          Not any todo yet 🧐
+        </h2>
+      )}
+
+      {errorTodoList && (
+        <h2 className="text-3xl font-bold text-center text-red-500">
+          Something wrong please try again
+        </h2>
+      )}
 
       {/* MODAL: Add new TODO */}
       <Modal ref={modalForAdded} title="Add new TODO">
