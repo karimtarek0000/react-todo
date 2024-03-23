@@ -39,6 +39,12 @@ const Navbar = () => {
             <li className="text-lg font-semibold duration-200 text-blue-950">
               {userData.user.email}
             </li>
+            <NavLink
+              to="/profile"
+              className="px-4 py-2 text-lg font-semibold text-blue-500 rounded-md "
+            >
+              Profile
+            </NavLink>
 
             <Button onClick={logoutHandler}>Logout</Button>
           </div>

@@ -9,6 +9,7 @@ import HomePage from "../pages";
 import RootLayout from "../pages/Layout";
 import LoginPage from "../pages/Login";
 import PageNotFound from "../pages/PageNotFound";
+import ProfilePage from "../pages/Profile";
 import RegisterPage from "../pages/Register";
 
 const isLoggedIn = !!localStorage.getItem("token");
@@ -39,6 +40,14 @@ const router = createBrowserRouter(
           element={
             <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/login">
               <RegisterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/">
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
