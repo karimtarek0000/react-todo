@@ -126,14 +126,15 @@ const TodoList = () => {
   });
 
   return (
-    <div className="space-y-1 ">
+    <div className="space-y-1">
+      {/* Add new todo */}
       <Button onClick={openModalAdded} className="mb-10 uppercase ms-auto">
         add new<span className="font-bold">TODO</span>
       </Button>
 
       {renderTodosList}
 
-      {/* Add new todo */}
+      {/* MODAL: Add new TODO */}
       <Modal ref={modalForAdded} title="Add new TODO">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <Input type="text" {...register("title")} />
@@ -157,7 +158,7 @@ const TodoList = () => {
         </form>
       </Modal>
 
-      {/* Edit */}
+      {/* MODAL: Edit TODO */}
       <Modal ref={modalEdit} title="Edit a TODO" fnForClose={clearInputsForm}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <Input type="text" {...register("title")} />
@@ -181,7 +182,7 @@ const TodoList = () => {
         </form>
       </Modal>
 
-      {/* Confirm for delete */}
+      {/* MODAL: Confirm for delete TODO */}
       <Modal
         ref={modalConfirm}
         title="Are you sure you want to remove this Todo from your Store?"
