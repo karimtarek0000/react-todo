@@ -1,9 +1,10 @@
 const Todo = () => {
-  const render = [1, 2].map(() => {
+  const render = [1, 2].map((cur) => {
     return (
       <div
+        key={cur}
         role="status"
-        className="mb-5 space-y-4 bg-gray-100 rounded-md bg-opacity-30 animate-pulse md:p-6"
+        className="mb-5 space-y-4 bg-gray-100 rounded-md bg-opacity-30 animate-pulse"
       >
         <div className="flex items-center justify-between pt-4">
           <div className="flex flex-col flex-1">

@@ -1,8 +1,8 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ITodo, ITodoForm } from "../interfaces";
-import { useDeleteTodo, useEditTodo } from "../server/mutations";
+import { useAddTodo, useDeleteTodo, useEditTodo } from "../server/mutations";
 import { useFetchTodo } from "../server/quires";
 import { validationTodoSchema } from "../validations/form";
 import Button from "./ui/Button";
@@ -14,9 +14,9 @@ import Todo from "./ui/skeleton/Todo";
 
 const TodoList = () => {
   // ----------------- STATE -----------------
-  const modal = useRef<any>();
+  const modalEdit = useRef<any>();
   const modalConfirm = useRef<any>();
-  const [todoForEdit, setTodoForEdit] = useState<ITodo>({} as ITodo);
+  const modalForAdded = useRef<any>();
   const [idTodo, setIdTodo] = useState<number>(0);
 
   // ----------------- QUIRES -----------------
@@ -27,22 +27,16 @@ const TodoList = () => {
   } = useFetchTodo();
 
   // ----------------- HANDLER -----------------
-  // -- MODAL
-  const openModal = (): void => modal.current.openModal();
-  const openModalConfirm = (): void => modalConfirm.current.openModal();
-  const closeModalConfirm = (): void => modalConfirm.current.closeModal();
-  const closeEditModal = (): void => {
-    setTodoForEdit({} as ITodo);
-    modal.current.closeModal();
-  };
-
-  const pickForEditHandler = (todo: ITodo): void => {
-    openModal();
-    setTodoForEdit(todo);
-  };
   const pickForDeleteHandler = (id: number): void => {
     openModalConfirm();
     setIdTodo(id);
+  };
+  const pickForEditHandler = (todo: ITodo): void => {
+    reset();
+    openModalEdit();
+    setIdTodo(todo.id);
+    setValue("title", todo.title);
+    setValue("description", todo.description);
   };
   const deleteTodoHandler = () => {
     mutateDeleteTodo(idTodo);
@@ -55,40 +49,59 @@ const TodoList = () => {
       closeEditModal();
     }
   );
-
   const { mutate: mutateDeleteTodo, isPending: loadingDeleteTodo } =
     useDeleteTodo(() => {
       fetchTodoList();
       closeModalConfirm();
     });
+  const { mutate: mutateAddTodo, isPending: loadingAddTodo } = useAddTodo(
+    () => {
+      fetchTodoList();
+      closeModalAdded();
+    }
+  );
 
   // ----------------- VALIDATION'S -----------------
   const {
     register,
     handleSubmit,
     setValue,
-    clearErrors,
+    reset,
     formState: { errors },
   } = useForm<ITodoForm>({
     resolver: yupResolver(validationTodoSchema),
     mode: "onChange",
   });
-  const onSubmit: SubmitHandler<ITodoForm> = (todo: ITodoForm) =>
-    mutateEditTodo({ id: todoForEdit.id, data: todo });
+  const onSubmit: SubmitHandler<ITodoForm> = (todo: ITodoForm) => {
+    idTodo ? mutateEditTodo({ id: idTodo, data: todo }) : mutateAddTodo(todo);
+    reset();
+  };
 
-  // To set new data when pick a TODO
-  useEffect(() => {
-    if (Object.keys(todoForEdit).length) {
-      clearErrors();
-      setValue("title", todoForEdit.title);
-      setValue("description", todoForEdit.description);
-    }
-  }, [clearErrors, setValue, todoForEdit]);
+  // -- MODALS
+  const openModalEdit = (): void => modalEdit.current.openModal();
+  const openModalConfirm = (): void => modalConfirm.current.openModal();
+  const openModalAdded = (): void => {
+    setIdTodo(0);
+    modalForAdded.current.openModal();
+  };
+  const closeModalConfirm = (): void => modalConfirm.current.closeModal();
+  const clearInputsForm = (): void => {
+    setValue("title", "");
+    setValue("description", "");
+  };
+  const closeEditModal = (): void => {
+    clearInputsForm();
+    modalEdit.current.closeModal();
+  };
+  const closeModalAdded = (): void => {
+    modalForAdded.current.closeModal();
+    reset();
+  };
 
   // Loading
   if (loadingTodoList) return <Todo />;
 
-  // ----------------- RENDER -----------------
+  // ----------------- RENDERS -----------------
   const renderTodosList = data?.map((todo: ITodo) => {
     return (
       <div
@@ -114,14 +127,38 @@ const TodoList = () => {
 
   return (
     <div className="space-y-1 ">
+      <Button onClick={openModalAdded} className="mb-10 uppercase ms-auto">
+        add new<span className="font-bold">TODO</span>
+      </Button>
+
       {renderTodosList}
 
+      {/* Add new todo */}
+      <Modal ref={modalForAdded} title="Add new TODO">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <Input type="text" {...register("title")} />
+          <ErrorMessage msg={errors.title?.message as string} />
+          <Textarea {...register("description")} />
+          <ErrorMessage msg={errors.description?.message as string} />
+
+          <div className="flex items-center gap-2">
+            <Button isLoading={loadingAddTodo} className="px-5">
+              Added
+            </Button>
+            <Button
+              type="button"
+              onClick={closeModalAdded}
+              className="px-5"
+              variant={"cancel"}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Edit */}
-      <Modal
-        ref={modal}
-        title="Edit a TODO"
-        fnForClose={() => setTodoForEdit({} as ITodo)}
-      >
+      <Modal ref={modalEdit} title="Edit a TODO" fnForClose={clearInputsForm}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <Input type="text" {...register("title")} />
           <ErrorMessage msg={errors.title?.message as string} />

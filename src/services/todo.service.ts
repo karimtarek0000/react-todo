@@ -6,6 +6,10 @@ export const getTodoList = async () => {
   return data.todos;
 };
 
+export const addNewTodo = async (data: ITodoForm) => {
+  return await axiosInstance.post("/todos", { data });
+};
+
 export const updateTodo = async (id: number, data: ITodoForm) => {
   return await axiosInstance.put(`/todos/${id}`, { data });
 };
