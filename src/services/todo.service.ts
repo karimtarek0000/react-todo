@@ -9,3 +9,7 @@ export const getTodoList = async () => {
 export const updateTodo = async (id: number, data: ITodoForm) => {
   return await axiosInstance.put(`/todos/${id}`, { data });
 };
+
+export const deleteTodo = async (id: number) => {
+  return await axiosInstance.delete(`/todos/${id}`);
+};

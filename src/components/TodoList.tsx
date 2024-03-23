@@ -1,11 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { IError, ITodo, ITodoForm } from "../interfaces";
-import { getTodoList, updateTodo } from "../services";
+import { ITodo, ITodoForm } from "../interfaces";
+import { useDeleteTodo, useEditTodo } from "../server/mutations";
+import { useFetchTodo } from "../server/quires";
 import { validationTodoSchema } from "../validations/form";
 import Button from "./ui/Button";
 import ErrorMessage from "./ui/ErrorMessage";
@@ -16,43 +14,52 @@ import Textarea from "./ui/Textarea";
 const TodoList = () => {
   // ----------------- STATE -----------------
   const modal = useRef<any>();
+  const modalConfirm = useRef<any>();
   const [todoForEdit, setTodoForEdit] = useState<ITodo>({} as ITodo);
+  const [idTodo, setIdTodo] = useState<number>(0);
 
   // ----------------- QUIRES -----------------
   const {
     data,
-    isLoading,
+    isLoading: loadingTodoList,
     refetch: fetchTodoList,
-  } = useQuery({
-    queryKey: ["todoList"],
-    queryFn: getTodoList,
-  });
+  } = useFetchTodo();
 
   // ----------------- HANDLER -----------------
+  // -- MODAL
   const openModal = (): void => modal.current.openModal();
+  const openModalConfirm = (): void => modalConfirm.current.openModal();
+  const closeModalConfirm = (): void => modalConfirm.current.closeModal();
   const closeEditModal = (): void => {
     setTodoForEdit({} as ITodo);
     modal.current.closeModal();
   };
+
   const pickForEditHandler = (todo: ITodo): void => {
     openModal();
     setTodoForEdit(todo);
   };
+  const pickForDeleteHandler = (id: number): void => {
+    openModalConfirm();
+    setIdTodo(id);
+  };
+  const deleteTodoHandler = () => {
+    mutateDeleteTodo(idTodo);
+  };
 
   // ----------------- MUTATIONS -----------------
-  const { mutate } = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ITodoForm }) =>
-      updateTodo(id, data),
-    onSuccess() {
-      toast.success("Update a todo successfully");
+  const { mutate: mutateEditTodo, isPending: loadingEditTodo } = useEditTodo(
+    () => {
       fetchTodoList();
       closeEditModal();
-    },
-    onError(error) {
-      const errorObj = error as AxiosError<IError>;
-      toast.error(errorObj.response?.data.error.message as string);
-    },
-  });
+    }
+  );
+
+  const { mutate: mutateDeleteTodo, isPending: loadingDeleteTodo } =
+    useDeleteTodo(() => {
+      fetchTodoList();
+      closeModalConfirm();
+    });
 
   // ----------------- VALIDATION'S -----------------
   const {
@@ -66,7 +73,7 @@ const TodoList = () => {
     mode: "onChange",
   });
   const onSubmit: SubmitHandler<ITodoForm> = (todo: ITodoForm) =>
-    mutate({ id: todoForEdit.id, data: todo });
+    mutateEditTodo({ id: todoForEdit.id, data: todo });
 
   // To set new data when pick a TODO
   useEffect(() => {
@@ -78,7 +85,7 @@ const TodoList = () => {
   }, [clearErrors, setValue, todoForEdit]);
 
   // Loading
-  if (isLoading) return <h2>Loading...</h2>;
+  if (loadingTodoList) return <h2>Loading...</h2>;
 
   // ----------------- RENDER -----------------
   const renderTodosList = data?.map((todo: ITodo) => {
@@ -92,7 +99,11 @@ const TodoList = () => {
           <Button size={"sm"} onClick={() => pickForEditHandler(todo)}>
             Edit
           </Button>
-          <Button variant={"danger"} size={"sm"}>
+          <Button
+            onClick={() => pickForDeleteHandler(todo.id)}
+            variant={"danger"}
+            size={"sm"}
+          >
             Remove
           </Button>
         </div>
@@ -104,6 +115,7 @@ const TodoList = () => {
     <div className="space-y-1 ">
       {renderTodosList}
 
+      {/* Edit */}
       <Modal
         ref={modal}
         title="Edit a TODO"
@@ -116,7 +128,9 @@ const TodoList = () => {
           <ErrorMessage msg={errors.description?.message as string} />
 
           <div className="flex items-center gap-2">
-            <Button className="px-5">Update</Button>
+            <Button isLoading={loadingEditTodo} className="px-5">
+              Update
+            </Button>
             <Button
               type="button"
               onClick={closeEditModal}
@@ -127,6 +141,38 @@ const TodoList = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Confirm for delete */}
+      <Modal
+        ref={modalConfirm}
+        title="Are you sure you want to remove this Todo from your Store?"
+      >
+        <div>
+          <p className="text-gray-500">
+            Deleting this Todo will remove it permanently from your inventory.
+            Any associated data, sales history, and other related information
+            will also be deleted. Please make sure this is the intended action.
+          </p>
+          <div className="flex items-center gap-2 mt-5">
+            <Button
+              onClick={deleteTodoHandler}
+              isLoading={loadingDeleteTodo}
+              className="px-5"
+              variant={"danger"}
+            >
+              Yes, remove
+            </Button>
+            <Button
+              onClick={closeModalConfirm}
+              type="button"
+              className="px-5"
+              variant={"cancel"}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
