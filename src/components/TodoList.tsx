@@ -10,6 +10,7 @@ import ErrorMessage from "./ui/ErrorMessage";
 import Input from "./ui/Input";
 import Modal from "./ui/Modal";
 import Textarea from "./ui/Textarea";
+import Todo from "./ui/skeleton/Todo";
 
 const TodoList = () => {
   // ----------------- STATE -----------------
@@ -85,7 +86,7 @@ const TodoList = () => {
   }, [clearErrors, setValue, todoForEdit]);
 
   // Loading
-  if (loadingTodoList) return <h2>Loading...</h2>;
+  if (loadingTodoList) return <Todo />;
 
   // ----------------- RENDER -----------------
   const renderTodosList = data?.map((todo: ITodo) => {
