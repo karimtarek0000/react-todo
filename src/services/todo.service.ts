@@ -7,7 +7,8 @@ export const getTodoList = async () => {
 };
 
 export const addNewTodo = async (data: ITodoForm) => {
-  return await axiosInstance.post("/todos", { data });
+  const id = JSON.parse(localStorage.getItem("user") as string)?.id;
+  return await axiosInstance.post("/todos", { data: { ...data, user: [id] } });
 };
 
 export const updateTodo = async (id: number, data: ITodoForm) => {
