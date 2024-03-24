@@ -49,6 +49,7 @@ export interface IUserData {
 export interface IAuthContext {
   userData: IUserData;
   setUserData: Dispatch<SetStateAction<IUserData>>;
+  logoutHandler: () => void;
 }
 
 export interface ITodo {

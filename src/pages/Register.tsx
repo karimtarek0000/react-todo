@@ -3,7 +3,6 @@ import { AxiosError } from "axios";
 import { useContext, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Input from "../components/ui/Input";
@@ -17,7 +16,6 @@ const RegisterPage = () => {
   // ----------------- STATE -----------------
   const [isLoading, setIsLoading] = useState(false);
   const auth = useContext(Auth);
-  const navigate = useNavigate();
 
   // ----------------- HANDLER -----------------
   const {
@@ -35,11 +33,7 @@ const RegisterPage = () => {
       const { data: userData }: any = await regsiter(data);
       auth.setUserData(userData);
       reset();
-      toast.success(
-        "Signup successfully will redirect to home page after 2 seconds"
-      );
-
-      setTimeout(() => location.replace("/"), 2000);
+      toast.success("Signup successfully");
     } catch (error) {
       const errorObj = error as AxiosError<IError>;
       toast.error(errorObj.response?.data.error.message as string);

@@ -12,8 +12,6 @@ import PageNotFound from "../pages/PageNotFound";
 import RegisterPage from "../pages/Register";
 import TodosPage from "../pages/Todos";
 
-const isLoggedIn = !!localStorage.getItem("token");
-
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -22,7 +20,7 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/login">
+            <ProtectedRoute>
               <HomePage />
             </ProtectedRoute>
           }
@@ -30,7 +28,7 @@ const router = createBrowserRouter(
         <Route
           path="login"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/">
+            <ProtectedRoute>
               <LoginPage />
             </ProtectedRoute>
           }
@@ -38,7 +36,7 @@ const router = createBrowserRouter(
         <Route
           path="register"
           element={
-            <ProtectedRoute isAllowed={!isLoggedIn} redirectPath="/login">
+            <ProtectedRoute>
               <RegisterPage />
             </ProtectedRoute>
           }
@@ -46,7 +44,7 @@ const router = createBrowserRouter(
         <Route
           path="todos"
           element={
-            <ProtectedRoute isAllowed={isLoggedIn} redirectPath="/">
+            <ProtectedRoute>
               <TodosPage />
             </ProtectedRoute>
           }

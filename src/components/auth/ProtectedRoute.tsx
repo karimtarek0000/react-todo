@@ -1,15 +1,24 @@
-import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useContext } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { Auth } from "../../context";
 
 interface IProps {
-  isAllowed: boolean;
-  redirectPath: string;
   children: ReactNode;
-  data?: unknown;
 }
 
-const ProtectedRoute = ({ isAllowed, redirectPath, children, data }: IProps) => {
-  if (!isAllowed) return <Navigate to={redirectPath} replace state={data} />;
+const ProtectedRoute = ({ children }: IProps) => {
+  const { userData } = useContext(Auth);
+  const { pathname } = useLocation();
+
+  const isAuthPage = ["/login", "/register"].includes(pathname);
+
+  if (!userData.jwt && !isAuthPage) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (userData.jwt && isAuthPage) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 };

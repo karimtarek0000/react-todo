@@ -18,8 +18,16 @@ const AuthState = ({ children }: IAuthState) => {
     }));
   }
 
+  const logoutHandler = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUserData({} as IUserData);
+  };
+
   return (
-    <Auth.Provider value={{ userData, setUserData }}>{children}</Auth.Provider>
+    <Auth.Provider value={{ userData, logoutHandler, setUserData }}>
+      {children}
+    </Auth.Provider>
   );
 };
 

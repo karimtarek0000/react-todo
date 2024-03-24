@@ -4,14 +4,7 @@ import { Auth } from "../context";
 import Button from "./ui/Button";
 
 const Navbar = () => {
-  const { userData } = useContext(Auth);
-
-  // ----------------- HANDLER -----------------
-  const logoutHandler = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    location.reload();
-  };
+  const { userData, logoutHandler } = useContext(Auth);
 
   return (
     <nav className="px-3 py-5 mx-auto mb-20 rounded-md mt-7">
