@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { useContext } from "react";
 import toast from "react-hot-toast";
+import { Auth } from "../../context";
 import { IError, ITodoForm } from "../../interfaces";
 import { addNewTodo, deleteTodo, updateTodo } from "../../services";
 
@@ -34,8 +36,9 @@ export const useDeleteTodo = (callBack: () => void) => {
 };
 
 export const useAddTodo = (callBack: () => void) => {
+  const { userData } = useContext(Auth);
   return useMutation({
-    mutationFn: (data: ITodoForm) => addNewTodo(data),
+    mutationFn: (data: ITodoForm) => addNewTodo(data, userData?.user?.id),
     onSuccess() {
       toast.success("Todo added successfully");
       callBack();

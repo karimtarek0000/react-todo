@@ -45,6 +45,12 @@ const Navbar = () => {
             >
               Profile
             </NavLink>
+            <NavLink
+              to="/todos"
+              className="px-4 py-2 text-lg font-semibold text-blue-500 rounded-md "
+            >
+              Todos
+            </NavLink>
 
             <Button onClick={logoutHandler}>Logout</Button>
           </div>
