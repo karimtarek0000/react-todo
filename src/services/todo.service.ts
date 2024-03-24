@@ -2,7 +2,9 @@ import { ITodoForm } from "../interfaces";
 import { axiosInstance } from "../server/axios.config";
 
 export const getAllTodos = async (page: number) => {
-  const { data } = await axiosInstance.get(`/todos?pagination[page]=${page}`);
+  const { data } = await axiosInstance.get(
+    `/todos?pagination[pageSize]=10&pagination[page]=${page}`
+  );
   return data;
 };
 
