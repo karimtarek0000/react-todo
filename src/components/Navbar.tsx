@@ -40,12 +40,6 @@ const Navbar = () => {
               {userData.user.email}
             </li>
             <NavLink
-              to="/profile"
-              className="px-4 py-2 text-lg font-semibold text-blue-500 rounded-md "
-            >
-              Profile
-            </NavLink>
-            <NavLink
               to="/todos"
               className="px-4 py-2 text-lg font-semibold text-blue-500 rounded-md "
             >
